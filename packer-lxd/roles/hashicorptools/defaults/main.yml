@@ -1,0 +1,54 @@
+---
+# defaults file for roles/hashicorptools
+packer_version: 1.6.5
+packer_url: https://releases.hashicorp.com/packer/{{ packer_version }}/packer_{{ packer_version }}_linux_amd64.zip
+
+# Debian
+apt_repo: "deb [arch=amd64] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
+packer_apt_ignore_key_error: true
+apt_gpg_key: https://apt.releases.hashicorp.com/gpg
+
+yum_gpg_key: https://rpm.releases.hashicorp.com/gpg
+
+# Centos/RH
+yum_repo_url:  https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
+
+# Fedora
+dnf_repo_url: https://rpm.releases.hashicorp.com/fedora/hashicorp.repo
+
+# Amazon Linux
+amazon_repo_url: https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
+
+
+# curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+# sudo apt-add-repository ""
+# sudo apt-get update && sudo apt-get install packer
+
+# sudo yum install -y yum-utils
+# sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
+# sudo yum -y install packer
+
+# sudo dnf install -y dnf-plugins-core
+# sudo dnf config-manager --add-repo https://rpm.releases.hashicorp.com/fedora/hashicorp.repo
+# sudo dnf -y install packer
+
+# # AmazonLinux
+# sudo yum install -y yum-utils
+# sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
+# sudo yum -y install packer
+
+# packer --version
+
+# [hashicorp]
+# name=Hashicorp Stable - $basearch
+# baseurl=https://rpm.releases.hashicorp.com/AmazonLinux/$releasever/$basearch/stable
+# enabled=1
+# gpgcheck=1
+# gpgkey=https://rpm.releases.hashicorp.com/gpg
+
+# [hashicorp-test]
+# name=Hashicorp Test - $basearch
+# baseurl=https://rpm.releases.hashicorp.com/AmazonLinux/$releasever/$basearch/test
+# enabled=0
+# gpgcheck=1
+# gpgkey=https://rpm.releases.hashicorp.com/gpg

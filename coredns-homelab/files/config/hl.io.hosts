@@ -1,0 +1,12 @@
+# Place entries below in standard hosts file format: ipaddress hostname fqdn
+192.168.81.101 reg.hl.io
+192.168.81.101 git.hl.io
+192.168.81.101 draw.hl.io
+192.168.81.101 nc.hl.io
+192.168.81.101 webserver.hl.io
+192.168.81.101 squid.hl.io
+192.168.81.101 fcos1.hl.io
+# Spin7
+192.168.80.100 jenkins.hl.io
+192.168.80.100 gitlab.hl.io
+192.168.80.100 spin7.hl.io

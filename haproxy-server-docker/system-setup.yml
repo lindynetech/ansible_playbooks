@@ -1,0 +1,26 @@
+- name: Check connection to docker host
+  command: docker images
+  register: docker_status
+
+- name: No docker setup
+  fail:
+    msg: Please setup docker and/or make user member of the docker group
+  when: docker_status.rc != 0
+
+- name: Install deps
+  apt:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - python3-pip
+  become: true
+
+- name: update pip3
+  command: pip3 install --upgrade pip
+
+- name: Install docker-compose
+  pip:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - docker-compose 

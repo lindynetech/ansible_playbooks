@@ -1,0 +1,48 @@
+---
+- name: Deploy coredns DNS docker-based service
+  hosts: fcos-1
+
+  tasks:
+    - name: Include variables
+      include_vars: vars/main.yml
+
+    - name: System check
+      include_tasks: tasks/system-check.yml  
+    
+    - name: Create project dir structure
+      file:
+        path: "{{ project_path }}"
+        state: directory
+        owner: "{{ docker_user }}"
+        group: "{{ docker_user }}"
+        mode: 0755
+  
+    - name: Copy config dir
+      copy:
+        src: files/config
+        dest: "{{ project_path }}" 
+    
+    - name: Copy docker-compose.yml
+      template:
+        src: templates/docker-compose.yml.j2
+        dest: "{{ project_path }}/docker-compose.yml"
+
+    - name: docker-compose down
+      docker_compose:
+        project_src: "{{ project_path }}/"
+        state: absent
+    
+    - name: docker-compose up
+      docker_compose:
+        project_src: "{{ project_path }}/"
+        build: false
+        state: present    
+
+    - name: Get info on container
+      docker_container_info:
+        name: "{{ project_name }}"
+      register: result
+
+    - name: Test that service is running
+      assert:
+        that: "{{ result.container.State.Running }}"

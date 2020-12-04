@@ -1,0 +1,18 @@
+- name: Install deps
+  yum:
+    name:
+      - curl
+      - yum-utils
+    state: present
+
+- name: Install HashiCorp repo
+  get_url:
+    url: "{{ yum_repo_url }}"
+    dest: /etc/yum.repos.d/hashicorp.repo
+  when: yum_repo_url | default(false)
+
+- name: Add HashiCorp repo GPG key
+  rpm_key:
+    state: present
+    key: "{{ yum_gpg_key }}"
+  when: yum_repo_url | default(false)

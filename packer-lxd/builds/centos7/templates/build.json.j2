@@ -1,0 +1,42 @@
+{
+	"variables": {
+		"public_key": "{{ public_key }}",
+		"username": "{{ username }}"
+	},
+  "builders": [
+    {
+      "type": "lxd",
+			"image": "{{ base_image }}",
+      "output_image": "centos7-{{ image_prefix}}",
+			"publish_properties": {
+				"description": "{{ description }}"
+			}
+    }
+  ],
+  "provisioners": [
+		{
+    {% raw %}
+			"type": "shell",
+			"inline": [
+				"useradd -G wheel {{ user `username` }}",
+				"echo password | passwd --stdin {{ user `username` }} ",
+				"echo password | passwd --stdin root",
+				"mkdir /home/{{ user `username` }}/.ssh/ && touch /home/{{ user `username` }}/.ssh/authorized_keys",
+				"chmod 600 /home/{{ user `username` }}/.ssh/authorized_keys",
+    {% endraw %}
+				"yum install {{ package_list }} -y -q",
+				"systemctl enable --now sshd", 
+				"sed -i.bak 's/^%wheel/#%wheel/g' /etc/sudoers",
+				"sed -i.bak 's/^# %wheel/%wheel/g'  /etc/sudoers",
+				"echo 'proxy={{ proxy_url }}' | sudo tee -a /etc/yum.conf"
+			]
+		},
+		{
+			"type": "file",
+    {% raw %}
+			"source": "{{ user `public_key` }}",
+			"destination": "/home/{{user `username`}}/.ssh/authorized_keys"
+    {% endraw %}
+		}
+	]
+}

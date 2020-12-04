@@ -1,0 +1,8 @@
+base_image: debian10
+target_image_name: debian10
+source_image: debian/10/amd64
+buildfile: debian10.json
+description: Debian 10 Buster ssh py3 squid-proxy-apt
+package_list: openssh-server sudo python3
+apt_proxy_file_dest: /etc/apt/apt.conf.d/proxy.conf
+apt_proxy_file_src: "{{ packer_dir}}/proxy.conf"

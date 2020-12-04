@@ -1,0 +1,54 @@
+---
+- name: Setup {{ project_name }} server in docker
+  hosts: spin7
+
+  vars_files:
+    - vars/main.yml
+  
+  pre_tasks:
+    - name: Apt update
+      apt: update_cache=yes cache_valid_time=3600
+      become: true
+
+  tasks:
+    - name: System Check / Setup
+      include_tasks: system-setup.yml  
+   
+    - name: Create project dir structure
+      file:
+        path: "{{ project_path }}"
+        state: directory
+        owner: deploy
+        group: deploy
+        mode: 0755
+    
+    - name: Copy haproxy.cfg config
+      template:
+        src: templates/haproxy.cfg.j2
+        dest: "{{ project_path }}/{{ config_file }}"        
+    
+    - name: Copy docker-compose.yml
+      template:
+        src: templates/docker-compose.yml.j2
+        dest: "{{ project_path }}/docker-compose.yml"
+
+    - name: docker-compose down
+      docker_compose:
+        project_src: "{{ project_path }}/"
+        state: absent
+    
+    - name: docker-compose up
+      docker_compose:
+        project_src: "{{ project_path }}/"
+        build: false
+        state: present
+      register: output
+
+    - name: Get container info
+      docker_container_info:
+        name: "{{ project_name }}"
+      register: result
+    
+    - name: Test that service is running
+      assert:
+        that: "{{ result.container.State.Running }}"

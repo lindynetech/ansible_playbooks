@@ -1,0 +1,7 @@
+---
+- name: Setup LXD and packer
+  hosts: lxdservers
+
+  roles:
+    - hashicorptools
+    - lxd

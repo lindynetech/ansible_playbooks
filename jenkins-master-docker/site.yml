@@ -1,0 +1,86 @@
+---
+- name: Setup jenkins master server in docker
+  hosts: all
+
+  vars:
+    project_path: "{{ infra_dir }}/{{ project_dir }}"
+  
+  pre_tasks:
+    - name: Apt update
+      apt: update_cache=yes cache_valid_time=3600
+      become: true
+
+  tasks:
+    - name: Check connection to docker host
+      command: docker images
+      register: docker_status
+
+    - name: No docker setup
+      fail:
+        msg: Please setup docker and/or make user member of docker group
+      when: docker_status.rc != 0
+
+    - name: Install deps
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - python3-pip
+      become: true
+
+    - name: update pip3
+      command: pip3 install --upgrade pip
+    - name: Install docker-compose
+      pip:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - docker-compose   
+
+    - name: Create project dir structure
+      file:
+        path: "{{ project_path }}"
+        state: directory
+        owner: deploy
+        group: deploy
+        mode: 0755
+    
+    - name: Create jenkins mount volume dir
+      file:
+        path: "{{ project_path }}/{{ jenkins_home }}"
+        state: directory
+        owner: deploy
+        group: deploy
+        mode: 0755
+    
+    - name: Copy docker-compose.yml
+      template:
+        src: templates/docker-compose.yml.j2
+        dest: "{{ project_path }}/docker-compose.yml"
+
+    - name: docker-compose down
+      docker_compose:
+        project_src: "{{ project_path }}/"
+        state: absent
+    
+    - name: docker-comose up -d
+      docker_compose:
+        project_src: "{{ project_path }}/"
+        build: false
+        state: present
+      register: output
+
+    - debug:
+        var: output
+
+    - name: Test service is running
+      assert:
+        that: jenkins.{{ project_dir }}_jenkins_1.state.running
+
+    - name: Get initial admin secret
+      command: cat {{ project_path }}/{{ jenkins_home }}/secrets/initialAdminPassword
+      register: admin_secret
+
+    - name: Print secret
+      debug:
+        msg: Initial Admin secret is {{ admin_secret.stdout }}

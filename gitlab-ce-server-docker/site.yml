@@ -1,0 +1,74 @@
+---
+- name: Setup {{ project_name }} server in docker
+  hosts: all
+
+  vars_files:
+    - vars/vars.yml
+
+  vars:
+    project_path: "{{ infra_dir }}/{{ project_dir }}"
+  
+  pre_tasks:
+    - name: Apt update
+      apt: update_cache=yes cache_valid_time=3600
+      become: true
+
+  tasks:
+    - name: Check connection to docker host
+      command: docker images
+      register: docker_status
+
+    - name: No docker setup
+      fail:
+        msg: Please setup docker and/or make user member of the docker group
+      when: docker_status.rc != 0
+
+    - name: Install deps
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - python3-pip
+      become: true
+
+    - name: update pip3
+      command: pip3 install --upgrade pip
+    
+    - name: Install docker-compose
+      pip:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - docker-compose   
+   
+    - name: Create {{ project_name}} mount volume dir
+      file:
+        path: "{{ project_path }}/{{ mount_dir }}"
+        state: directory
+        owner: deploy
+        group: deploy
+        mode: 0755
+    
+    - name: Copy docker-compose.yml
+      template:
+        src: templates/docker-compose.yml.j2
+        dest: "{{ project_path }}/docker-compose.yml"
+
+    - name: docker-compose down
+      docker_compose:
+        project_src: "{{ project_path }}/"
+        state: absent
+    
+    - name: docker-compose up
+      docker_compose:
+        project_src: "{{ project_path }}/"
+        build: false
+        state: present
+      register: output
+
+    - debug:
+        var: output
+
+    - name: Test service is running
+      assert:
+        that: gitlab.{{ project_dir }}_gitlab_1.state.running

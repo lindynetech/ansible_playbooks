@@ -1,0 +1,5 @@
+[jenkins_master]
+spin7
+
+[all:vars]
+ansible_ssh_private_key_file=~/.ssh/id_rsa

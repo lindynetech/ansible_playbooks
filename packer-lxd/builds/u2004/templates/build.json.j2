@@ -1,0 +1,53 @@
+{
+	"variables": {
+		"public_key": "{{ public_key }}",
+		"username": "{{ username }}",
+    "apt_proxy_file_dest": "{{ apt_proxy_file_dest }}",
+		"apt_proxy_file_src": "{{ apt_proxy_file_src }}"
+	},
+  "builders": [
+    {
+      "type": "lxd",
+			"image": "{{ base_image }}",
+      "output_image": "{{ target_image_name }}-{{ image_prefix}}",
+			"publish_properties": {
+				"description": "{{ description }}"
+			}
+    }
+  ],
+  "provisioners": [
+  {% raw %}
+    {
+			"type": "file",
+			"source": "{{ user `apt_proxy_file_src` }}",
+			"destination": "{{user `apt_proxy_file_dest`}}"
+		},
+		{    
+			"type": "shell",
+			"inline": [
+				"useradd -m -s /bin/bash {{ user `username` }}",
+        "usermod -aG sudo {{ user `username` }}",
+				"mkdir /home/{{ user `username` }}/.ssh/ && touch /home/{{ user `username` }}/.ssh/authorized_keys",
+				"chmod 600 /home/{{ user `username` }}/.ssh/authorized_keys",
+  {% endraw %}
+				"apt-get update",
+				"apt-get install {{ package_list }} -y",        
+				"echo '{{ username }} ALL=(ALL:ALL) NOPASSWD: ALL' > /etc/sudoers.d/user_deploy",
+				"sed -i 's/^#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config"
+			]
+		},
+    {% raw %}
+		{    
+			"type": "file",    
+			"source": "{{ user `public_key` }}",
+			"destination": "/home/{{user `username`}}/.ssh/authorized_keys"   
+		},
+    {
+			"type": "shell",
+			"inline": [
+				"chown -R {{ user `username` }}:{{ user `username` }} /home/{{ user `username` }}"
+			]
+		}
+    {% endraw %}
+	]
+}

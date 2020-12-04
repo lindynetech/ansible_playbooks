@@ -1,0 +1,37 @@
+- name: Check Docker status
+  command: docker images
+  register: docker_status
+
+- name: Fail if docker is absent
+  fail:
+    msg: Please install docker or add user to docker group
+  when: docker_status.rc != 0
+
+- name: Prepare temp dir for build
+  file:
+    path: "{{ project_dir }}"
+    state: absent
+
+- file:
+    path: "{{ project_dir }}"
+    state: directory
+
+- name: Copy .dockerignore
+  copy:
+    src: files/.dockerignore
+    dest: "{{ project_dir }}"
+
+- name: Copy Dockerfile
+  template:
+    src: templates/Dockerfile.j2
+    dest: "{{ project_dir }}/Dockerfile"
+
+- name: Build the image
+  docker_image:
+    build:
+      path: "{{ project_dir }}"
+    name: "{{ target_image }}"
+    tag: "{{ target_tag}}"
+    push: no
+    pull: no
+    source: build

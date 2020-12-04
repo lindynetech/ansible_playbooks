@@ -1,0 +1,6 @@
+---
+infra_dir: devops_infra
+project_name: gitlab-ce
+project_dir: gitlab_ce_server
+mount_dir: gitlab
+image: reg.hl/gitlab-ce:release

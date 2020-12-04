@@ -1,0 +1,4 @@
+infra_dir: devops_infra
+project_dir: jenkins_master_server
+jenkins_home: jenkins_home
+image: reg.hl/jenkins:lts

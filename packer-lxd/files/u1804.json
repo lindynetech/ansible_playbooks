@@ -1,0 +1,48 @@
+{
+	"variables": {
+		"public_key": "/home/deploy/.ssh/id_rsa.pub",
+		"username": "deploy",
+		"apt_proxy_file_dest": "/etc/apt/apt.conf.d/proxy.conf",
+		"apt_proxy_file_src": "proxy.conf"
+	},
+  "builders": [
+    {
+      "type": "lxd",
+			"image": "bionic",
+      "output_image": "bionic-ansible",
+			"publish_properties": {
+				"description": "Bionic sshd sudo squid-proxy-apt"
+			}
+    }
+  ],
+  "provisioners": [
+		{
+			"type": "file",
+			"source": "{{ user `apt_proxy_file_src` }}",
+			"destination": "{{user `apt_proxy_file_dest`}}"
+		},
+		{
+			"type": "shell",
+			"inline": [
+				"useradd -m -G sudo {{ user `username` }}",
+				"mkdir /home/{{ user `username` }}/.ssh/ && touch /home/{{ user `username` }}/.ssh/authorized_keys",
+				"chmod 600 /home/{{ user `username` }}/.ssh/authorized_keys",
+				"apt-get update",
+				"apt-get install openssh-server -y",
+				"echo 'deploy ALL=(ALL:ALL) NOPASSWD: ALL' > /etc/sudoers.d/user_deploy",
+				"sed -i 's/^#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config"
+			]
+		},
+		{
+			"type": "file",
+			"source": "{{ user `public_key` }}",
+			"destination": "/home/{{user `username`}}/.ssh/authorized_keys"
+		},
+		{
+			"type": "shell",
+			"inline": [
+				"chown -R deploy:deploy /home/{{ user `username` }}"
+			]
+		}
+	]
+}

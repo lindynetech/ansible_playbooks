@@ -1,0 +1,38 @@
+{
+	"variables": {
+		"public_key": "/home/deploy/.ssh/id_rsa.pub",
+		"username": "deploy"
+	},
+  "builders": [
+    {
+      "type": "lxd",
+			"image": "centos7",
+      "output_image": "centos7-ansible-agent",
+			"publish_properties": {
+				"description": "Centos 7 ssh py3 squid-proxy-yum"
+			}
+    }
+  ],
+  "provisioners": [
+		{
+			"type": "shell",
+			"inline": [
+				"useradd -G wheel {{ user `username` }}",
+				"echo password | passwd --stdin {{ user `username` }} ",
+				"echo password | passwd --stdin root",
+				"mkdir /home/{{ user `username` }}/.ssh/ && touch /home/{{ user `username` }}/.ssh/authorized_keys",
+				"chmod 600 /home/{{ user `username` }}/.ssh/authorized_keys",
+				"yum install openssh-server sudo python3 -y -q",
+				"systemctl enable --now sshd", 
+				"sed -i.bak 's/^%wheel/#%wheel/g' /etc/sudoers",
+				"sed -i.bak 's/^# %wheel/%wheel/g'  /etc/sudoers",
+				"echo 'proxy=http://192.168.81.101:3128' | sudo tee -a /etc/yum.conf"
+			]
+		},
+		{
+			"type": "file",
+			"source": "{{ user `public_key` }}",
+			"destination": "/home/{{user `username`}}/.ssh/authorized_keys"
+		}
+	]
+}

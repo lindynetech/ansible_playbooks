@@ -1,0 +1,43 @@
+global
+    log stdout format raw local0
+defaults
+    mode http
+    log global
+    option httplog
+    timeout client  50000ms
+    timeout server  50000ms
+    timeout connect 5000ms
+    default-server check inter 120s maxconn 2000
+
+frontend http-in
+    bind *:80
+    acl host_git hdr(host) -i git.hl.io
+    acl host_reg hdr(host) -i reg.hl.io	
+    acl host_nc hdr(host) -i nc.hl.io
+    acl host_draw hdr(host) -i draw.hl.io	
+    acl host_webserver hdr(host) -i webserver.hl.io	
+
+    use_backend registry if host_reg
+    use_backend gitea if host_git
+    use_backend nextcloud if host_nc
+    use_backend draw.io if host_draw
+    use_backend webserver if host_webserver
+
+    default_backend gitea
+
+backend registry
+    server reg1 192.168.81.101:5000 check
+
+backend gitea
+    server gitea1 192.168.81.101:3000 check
+
+backend nextcloud
+    server nc1 192.168.81.101:8080
+
+backend draw.io
+    server draw1 192.168.81.101:8081
+
+backend webserver
+    server webserver1 192.168.81.101:8082
+
+

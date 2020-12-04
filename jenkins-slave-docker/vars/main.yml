@@ -1,0 +1,13 @@
+project_dir: /tmp/jenkins-slave-build
+j_user: jenkins
+j_password: jenkins
+j_uid: 1000
+j_gid: 1000
+src_image: reg.hl/ubuntu20.04:local
+target_image: reg.hl/u2004-jenkins-slave
+target_tag: local
+container_name: u2004-jenkins-slave
+host_port: 2224
+package_list: openssh-server openjdk-8-jre iproute2 git ansible packer terraform python3-pip zip unzip awscli
+#package_list: openssh-server iproute2 
+# kind, kubectl, helm

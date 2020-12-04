@@ -1,0 +1,35 @@
+---
+- name: Check packer_dir
+  fail:
+    msg: packer_dir is not set
+  when: not packer_dir
+
+- name: Include local variables
+  include_vars: vars.yml
+
+- name: Check base image status
+  command: lxc image info {{ base_image }}
+  register: base_image_status
+  changed_when: false
+  ignore_errors: true
+
+- name: No base image, pull it
+  command: 'lxc image copy images:{{ source_image }} local: --alias {{ base_image }}'
+  when: base_image_status.rc != 0
+
+- name: Prepare buildfile
+  template:
+    src: templates/build.json.j2
+    dest: "{{ packer_dir }}/{{ buildfile }}"
+
+- name: Copy apt proxy.conf
+  copy:
+    src: proxy.conf
+    dest: "{{ packer_dir }}/proxy.conf"
+    
+- name: Run build
+  command: packer build {{ packer_dir }}/{{ buildfile }}
+  register: build_status
+
+- debug:
+    var: build_status

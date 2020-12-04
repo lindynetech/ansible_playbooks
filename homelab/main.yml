@@ -1,0 +1,13 @@
+---
+- name: Deploy homelab
+  hosts: homelab
+
+  roles:
+    - haproxy
+    # - registry
+    # - gitea
+    # - nextcloud
+    # - draw.io
+    # - webserver
+    # - squid
+    

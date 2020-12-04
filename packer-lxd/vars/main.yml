@@ -1,0 +1,4 @@
+public_key: /home/deploy/.ssh/id_rsa.pub
+username: deploy
+image_prefix: ansible-agent
+proxy_url: http://192.168.81.101:3128

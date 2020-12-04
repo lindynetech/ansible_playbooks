@@ -1,0 +1,8 @@
+base_image: focal
+target_image_name: focal
+source_image: ubuntu/focal/amd64
+buildfile: u2004.json
+description: Ubuntu focal sshd squid-apt
+package_list: openssh-server
+apt_proxy_file_dest: /etc/apt/apt.conf.d/proxy.conf
+apt_proxy_file_src: "{{ packer_dir}}/proxy.conf"

@@ -1,0 +1,12 @@
+.:53 {
+    log
+    errors
+    auto
+    reload 30s
+    forward . 8.8.8.8 1.1.1.1 
+    # If you wish to use a standard ZONE File format, uncomment the following line and customize the specified file
+    #file /etc/coredns/db.example.com example.com
+    
+    # If you wish to use a standard Hosts File format, uncomment the following line and customize the specified file
+    hosts /etc/coredns/hl.io.hosts hl.io
+}

@@ -1,0 +1,32 @@
+- name: Check docker status
+  command: docker images
+  register: docker_status
+  changed_when: false
+
+- name: Docker is not installed or user not in docker group
+  fail:
+    msg: Please install Docker or add user to docker group
+  when: docker_status.rc != 0
+
+- name: Check docker-compose status
+  command: docker-compose version
+  register: dc_status
+  changed_when: false
+
+- name: docker-compose is not installed
+  fail:
+    msg: Please install docker-compose
+  when: dc_status.rc != 0
+  
+- name: Check docker user
+  fail:
+    msg: remote_user is in not in docker group
+  when: docker_user != ansible_user_id
+
+- name: Check for selinux deps
+  shell: rpm -qi python3-libselinux
+  register: sel_py3_status
+
+- fail:
+    msg: Please install python3-libselinux (sudo rpm-ostree install python3-libselinux && sudo systemctl reboot)
+  when: sel_py3_status.rc != 0

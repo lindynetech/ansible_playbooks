@@ -1,0 +1,5 @@
+base_image: centos8
+source_image: centos/8/amd64
+buildfile: centos8.json
+description: Centos 8 ssh py3 squid-proxy-yum
+package_list: openssh-server sudo python3

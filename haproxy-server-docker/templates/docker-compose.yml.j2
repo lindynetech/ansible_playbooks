@@ -1,0 +1,13 @@
+---
+version: "3.7"
+services:
+  haproxy:
+    image: {{ image }}
+    container_name: {{ project_name }}
+    ports:
+      - target: 80
+        published: 80
+        protocol: tcp
+    restart: always
+    volumes:
+      - ./{{ config_file }}:/usr/local/etc/haproxy/haproxy.cfg

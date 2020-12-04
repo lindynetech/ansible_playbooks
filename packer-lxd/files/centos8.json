@@ -1,0 +1,39 @@
+{
+	"variables": {
+		"public_key": "/home/deploy/.ssh/id_rsa.pub",
+		"username": "deploy"
+	},
+  "builders": [
+    {
+      "type": "lxd",
+			"image": "centos8",
+      "output_image": "centos8-ansible-agent",
+			"publish_properties": {
+				"description": "Centos 8 sshd py3 yum-squid"
+			}
+    }
+  ],
+  "provisioners": [
+		{
+			"type": "shell",
+			"inline": [
+				"useradd {{ user `username` }}",
+				"usermod -aG wheel {{ user `username` }}",
+				"echo password | passwd --stdin {{ user `username` }} ",
+				"echo password | passwd --stdin root",
+				"mkdir /home/{{ user `username` }}/.ssh/ && touch /home/{{ user `username` }}/.ssh/authorized_keys",
+				"chmod 600 /home/{{ user `username` }}/.ssh/authorized_keys",
+				"dnf install openssh-server sudo python3  -y -q",
+				"systemctl enable --now sshd", 
+				"echo 'deploy ALL=(ALL:ALL) NOPASSWD: ALL' > /etc/sudoers.d/user_deploy",
+				"sed -i 's/^#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config",
+				"echo 'proxy=http://192.168.81.101:3128' | sudo tee -a /etc/dnf/dnf.conf"
+			]
+		},
+		{
+			"type": "file",
+			"source": "{{ user `public_key` }}",
+			"destination": "/home/{{user `username`}}/.ssh/authorized_keys"
+		}
+	]
+}
