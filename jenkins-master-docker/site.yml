@@ -2,40 +2,12 @@
 - name: Setup jenkins master server in docker
   hosts: all
 
-  vars:
-    project_path: "{{ infra_dir }}/{{ project_dir }}"
+  vars_files:
+    - vars/main.yml    
   
-  pre_tasks:
-    - name: Apt update
-      apt: update_cache=yes cache_valid_time=3600
-      become: true
-
-  tasks:
-    - name: Check connection to docker host
-      command: docker images
-      register: docker_status
-
-    - name: No docker setup
-      fail:
-        msg: Please setup docker and/or make user member of docker group
-      when: docker_status.rc != 0
-
-    - name: Install deps
-      apt:
-        name: "{{ item }}"
-        state: present
-      loop:
-        - python3-pip
-      become: true
-
-    - name: update pip3
-      command: pip3 install --upgrade pip
-    - name: Install docker-compose
-      pip:
-        name: "{{ item }}"
-        state: present
-      loop:
-        - docker-compose   
+  tasks:  
+    - name: Run system check
+      include_tasks: system-check.yml
 
     - name: Create project dir structure
       file:
@@ -62,20 +34,13 @@
       docker_compose:
         project_src: "{{ project_path }}/"
         state: absent
+        remove_orphans: true
     
-    - name: docker-comose up -d
+    - name: docker-compose up -d
       docker_compose:
         project_src: "{{ project_path }}/"
         build: false
         state: present
-      register: output
-
-    - debug:
-        var: output
-
-    - name: Test service is running
-      assert:
-        that: jenkins.{{ project_dir }}_jenkins_1.state.running
 
     - name: Get initial admin secret
       command: cat {{ project_path }}/{{ jenkins_home }}/secrets/initialAdminPassword

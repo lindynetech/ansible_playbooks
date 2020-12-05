@@ -1,11 +1,12 @@
 ---
 # defaults file for roles/hashicorptools
-packer_version: 1.6.5
-packer_url: https://releases.hashicorp.com/packer/{{ packer_version }}/packer_{{ packer_version }}_linux_amd64.zip
+
+package: packer
+package_state: present
 
 # Debian
 apt_repo: "deb [arch=amd64] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
-packer_apt_ignore_key_error: true
+apt_ignore_key_error: true
 apt_gpg_key: https://apt.releases.hashicorp.com/gpg
 
 yum_gpg_key: https://rpm.releases.hashicorp.com/gpg
@@ -19,6 +20,9 @@ dnf_repo_url: https://rpm.releases.hashicorp.com/fedora/hashicorp.repo
 # Amazon Linux
 amazon_repo_url: https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
 
+# Packer Manual
+packer_version: 1.6.5
+packer_url: https://releases.hashicorp.com/packer/{{ packer_version }}/packer_{{ packer_version }}_linux_amd64.zip
 
 # curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
 # sudo apt-add-repository ""

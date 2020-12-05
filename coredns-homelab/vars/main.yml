@@ -3,6 +3,6 @@ infra_dir: homelab
 project_name: coredns
 project_dir: coredns-homelab
 config_dir: ./config
-image: reg.hl/coredns:local
+image: reg.hl.io/coredns:local
 project_path: "{{ infra_dir }}/{{ project_dir }}"
 docker_user: deploy

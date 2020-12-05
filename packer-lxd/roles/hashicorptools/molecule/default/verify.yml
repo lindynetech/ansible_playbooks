@@ -1,0 +1,23 @@
+---
+# This is an example playbook to execute Ansible tests.
+
+- name: Verify
+  hosts: all
+
+  vars:
+    package: packer
+
+  tasks:
+    - name: check if {{ package }} is installed
+      package:
+        name: "{{ package }}"
+        state: present
+      check_mode: yes
+      register: pkg
+
+    - name: fail if package was not installed
+      assert:
+        that:
+          - not pkg.changed
+        fail_msg: "Package {{ package}} was not installed!"
+        success_msg: "Package {{ package}} was installed."

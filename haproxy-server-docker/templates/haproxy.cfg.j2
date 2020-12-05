@@ -20,7 +20,7 @@ frontend http-in
     default_backend jenkins
 
 backend jenkins
-    server gitea1 192.168.80.100:8080 check
+    server jenkins 192.168.80.100:8080 check
 
 backend gitlab
-    server reg1 192.168.80.100:8081 check
+    server gitlab 192.168.80.100:8081 check

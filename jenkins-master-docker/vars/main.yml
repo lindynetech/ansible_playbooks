@@ -1,0 +1,7 @@
+---
+infra_dir: devops_infra
+project_dir: jenkins_master_server
+project_name: jenkins
+jenkins_home: jenkins_home
+image: reg.hl.io/jenkins:lts
+project_path: "{{ infra_dir }}/{{ project_dir }}"

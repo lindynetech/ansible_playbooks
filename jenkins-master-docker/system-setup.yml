@@ -1,15 +1,15 @@
-  
+---
 - name: Apt update
   apt: update_cache=yes cache_valid_time=3600
   become: true
-
+  
 - name: Check connection to docker host
   command: docker images
   register: docker_status
 
 - name: No docker setup
   fail:
-    msg: Please setup docker and/or make user member of the docker group
+    msg: Please setup docker and/or make user member of docker group
   when: docker_status.rc != 0
 
 - name: Install deps
@@ -22,10 +22,10 @@
 
 - name: update pip3
   command: pip3 install --upgrade pip
-
+  
 - name: Install docker-compose
   pip:
     name: "{{ item }}"
     state: present
   loop:
-    - docker-compose 
+    - docker-compose  

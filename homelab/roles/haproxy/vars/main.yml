@@ -4,6 +4,6 @@ infra_dir: homelab
 project_name: haproxy
 project_dir: haproxy
 config_file: haproxy.cfg
-image: reg.hl/haproxy:local
+image: haproxy:latest
 project_path: "{{ infra_dir }}/{{ project_dir }}"
 docker_user: deploy

@@ -1,0 +1,16 @@
+- name: Check connection to docker host
+  command: docker images
+  register: docker_status
+
+- name: No docker setup
+  fail:
+    msg: Please setup docker and/or make user member of the docker group
+  when: docker_status.rc != 0
+
+- name: Check docker-compose status
+  command: pip3 show docker-compose
+  register: dc_status
+
+- fail:
+    msg: Please install docker-compose
+  when: dc_status.rc != 0

@@ -1,19 +1,18 @@
 ---
 # tasks file for roles/hashicorptools
----
-- include_tasks: setup-amzlinux.yml
-  when: ansible_distribution == 'Amazon'  
-  
-- include_tasks: setup-fedora.yml
-  when: ansible_distribution == 'Fedora'
-
 - include_tasks: setup-redhat.yml
   when: ansible_os_family == 'RedHat' and (ansible_distribution in ['CentOS', 'RedHat'])
 
 - include_tasks: setup-debian.yml
   when: ansible_os_family == 'Debian'
 
+- include_tasks: setup-amzlinux.yml
+  when: ansible_distribution == 'Amazon'
+
+- include_tasks: setup-fedora.yml
+  when: ansible_distribution == 'Fedora'
+
 - name: Install {{ package }}
   package:
     name: "{{ package }}"
-    state: "{{ package_state }}"  
+    state: "{{ package_state }}"

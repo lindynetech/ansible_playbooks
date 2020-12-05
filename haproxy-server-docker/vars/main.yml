@@ -3,5 +3,5 @@ infra_dir: devops_infra
 project_name: haproxy
 project_dir: haproxy_server
 config_file: haproxy.cfg
-image: reg.hl/haproxy:local
+image: reg.hl.io/haproxy:local
 project_path: "{{ infra_dir }}/{{ project_dir }}"

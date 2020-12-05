@@ -1,5 +1,5 @@
 [homelab]
-fcos-1 ansible_ssh_private_key_file=~/.ssh/fcos_id_rsa
+fcos1 ansible_ssh_private_key_file=~/.ssh/fcos_id_rsa
 
 [devopsserver]
 spin7
@@ -9,6 +9,7 @@ x201 ansible_connection=local
 
 [lxdcontainers]
 c8-1.test
+u2004-1.test
 
 [all:vars]
 ansible_ssh_private_key_file=~/.ssh/id_rsa

@@ -1,6 +1,6 @@
 ---
 - name: Deploy coredns DNS docker-based service
-  hosts: fcos-1
+  hosts: fcos1
 
   tasks:
     - name: Include variables

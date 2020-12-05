@@ -2,14 +2,11 @@
 version: "3.7"
 
 services:
-  jenkins: 
-    image: "{{ image }}"
+  {{ project_name }}: 
+    image: "{{ image }}"    
     ports:
       - "8080:8080"
       - "50000:50000"
     volumes:
       - ./{{ jenkins_home }}:/var/jenkins_home
-    extra_hosts:
-      - "git.hl:192.168.81.101"
-      - "reg.hl:192.168.81.101"
     restart: always

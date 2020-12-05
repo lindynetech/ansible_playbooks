@@ -3,8 +3,8 @@ j_user: jenkins
 j_password: jenkins
 j_uid: 1000
 j_gid: 1000
-src_image: reg.hl/ubuntu20.04:local
-target_image: reg.hl/u2004-jenkins-slave
+src_image: reg.hl.io/ubuntu20.04:local
+target_image: reg.hl.io/u2004-jenkins-slave
 target_tag: local
 container_name: u2004-jenkins-slave
 host_port: 2224

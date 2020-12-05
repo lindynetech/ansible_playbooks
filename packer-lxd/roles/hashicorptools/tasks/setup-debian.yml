@@ -1,0 +1,30 @@
+- name: Install deps
+  yum:
+    name:
+      - curl
+      - apt-transport-https
+      - ca-certificates
+      - gnupg2
+    state: present
+
+- name: Add Hashicorp apt key
+  apt_key:
+    url: "{{ apt_gpg_key }}"
+    id: E8A032E094D8EB4EA189D270DA418C88A3219F7B
+    state: present
+  register: add_repository_key
+  ignore_errors: "{{ apt_ignore_key_error }}"
+
+- name: Add apt key (alternative for older systems without SNI)
+  shell: >
+    set -o pipefail && \
+    curl -fsSL {{ apt_gpg_key }} | sudo apt-key add -
+  args:
+    warn: false
+  when: add_repository_key is failed
+
+- name: Add HashiCorp repository.
+  apt_repository:
+    repo: "{{ apt_repo }}"
+    state: present
+    update_cache: true
