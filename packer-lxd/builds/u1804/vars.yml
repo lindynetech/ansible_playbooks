@@ -1,7 +1,7 @@
 base_image: bionic
 target_image_name: bionic
 source_image: ubuntu/bionic/amd64
-buildfile: u2004.json
+buildfile: u1804.json
 description: Ubuntu bionic sshd squid-apt
 package_list: openssh-server
 apt_proxy_file_dest: /etc/apt/apt.conf.d/proxy.conf

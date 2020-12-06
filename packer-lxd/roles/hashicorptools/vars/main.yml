@@ -1,2 +1,17 @@
 ---
 # vars file for roles/hashicorptools
+# Debian
+apt_repo: "deb [arch=amd64] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
+apt_ignore_key_error: true
+apt_gpg_key: https://apt.releases.hashicorp.com/gpg
+
+yum_gpg_key: https://rpm.releases.hashicorp.com/gpg
+
+# Centos/RH
+yum_repo_url:  https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
+
+# Fedora
+dnf_repo_url: https://rpm.releases.hashicorp.com/fedora/hashicorp.repo
+
+# Amazon Linux
+amazon_repo_url: https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo

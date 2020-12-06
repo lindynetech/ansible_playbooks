@@ -1,0 +1,19 @@
+---
+- name: Check lxd status
+  command: lxd version
+  register: lxd_status
+  changed_when: false
+  
+- name: No LXD installed
+  fail:
+    msg: Please install and init lxd
+  when: lxd_status.rc != 0
+
+- name: Ensure packer is installed
+  command: packer version
+  register: packer_status
+  
+- name: No packer installed
+  fail:
+    msg: Please install packer
+  when: packer_status.rc != 0

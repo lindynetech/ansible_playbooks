@@ -1,7 +1,14 @@
 ---
 - name: Setup LXD and packer
   hosts: lxdservers
+  become: true
 
   roles:
     - hashicorptools
     - lxd
+
+  post_tasks:
+    - name: Install packer
+      package:
+        name: packer
+        state: present

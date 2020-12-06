@@ -1,2 +1,11 @@
 ---
 # handlers file for roles/lxd
+- name: restart_lxc
+  service:
+    name: lxc
+    state: restarted
+
+- name: restart_snapd
+  service:
+    name: snapd
+    state: restarted

@@ -1,2 +1,11 @@
 ---
 # tasks file for roles/lxd
+- include_tasks: setup-debian.yml
+  when: ansible_os_family == 'Debian'
+
+- include_tasks: setup-redhat.yml
+  when: ansible_os_family == 'RedHat'
+
+- fail:
+    msg: Debian/RedHat only at this time
+  when:  ansible_os_family not in  ['Debian', 'RedHat']

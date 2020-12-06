@@ -1,0 +1,35 @@
+---
+- name: Install Epel repo
+  yum:
+    name: epel-release
+    state: present
+    
+- name: Install snapd
+  yum:
+    name: snapd
+    state: "{{ snapd_state }}"
+
+- name: Enable and start snapd service
+  service:
+    name: snapd
+    state: started
+    enabled: true
+  when: snapd_state == 'present'
+
+- name: Install LXD
+  snap:
+    name: lxd
+    state: "{{ lxd_state }}"
+    classic: true
+  register: result
+
+#- name: Enable and start lxc service
+#  service:
+#    name: lxc
+#    state: started
+#    enabled: true
+#  when: lxd_state == present
+
+- name: Initialize default LXD profile
+  command: lxd init --auto
+  when: result.changed

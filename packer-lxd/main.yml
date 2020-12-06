@@ -5,26 +5,31 @@
   vars_files:
     - vars/main.yml 
 
-  tasks:   
-    - name: Check lxd status
-      command: lxd version
-      register: lxd_status
-      changed_when: false
+  vars:
+    distros:
+      - u1804
       
-    - name: No LXD installed
-      fail:
-        msg: Please install and init lxd
-      when: lxd_status.rc != 0
-    
-    - name: Ensure packer is installed
-      command: packer --version
-      register: packer_status
-     
-    - name: No packer installed
-      fail:
-        msg: Please install packer
-      when: packer_status.rc != 0
-      
+  tasks:
+
+    - name: Override default user
+      set_fact:
+        username: "{{ ansible_user }}"
+        public_key: /home/{{ ansible_user }}/.ssh/id_rsa
+      when: username != ansible_user
+
+    - name: Check if ssh key exists
+      stat:
+        path: "{{ public_key }}"
+      register: key_status
+
+    - name: Generate ssh keys
+      openssh_keypair:
+        path: "{{ public_key}}"
+      when: not key_status.stat.exists
+
+    - name: System Check
+      include_tasks: system-check.yml    
+
     - name: Create temp dir
       tempfile:
         state: directory
@@ -38,20 +43,26 @@
 
     - name: Include tasks
       include_tasks: builds/{{ item }}/tasks.yml
-      loop:
-        - debian10
-
+      loop: "{{ distros }}"
+        
     - name: Cleanup
       file:
         path: "{{ packer_dir }}"
         state: absent
 
-    # - name: Run tests
-    #   assert:
-    #     that:
-    #       - "{{ lxc image info centos7-ansible-agent }}"
-    #     fail_msg: "Build status: Failed"
-    #     success_msg: "Build status: OK"
+    - command: lxc image ls -c L --format csv
+      register: image_list
+
+    # Will fail if bionic, focal as filename/distro mismatch
+    - name: Run tests
+      assert:
+        that:
+          - "{{ (tgt_img | lower) in image_list.stdout_lines }}"
+        fail_msg: "Build status: Failed"
+        success_msg: "Build status: OK"
+      vars:
+        tgt_img: "{{ item }}-{{image_prefix}}"
+      loop: "{{ distros }}"
 
     - name: Report
       debug: 

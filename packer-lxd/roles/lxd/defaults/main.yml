@@ -1,2 +1,4 @@
 ---
 # defaults file for roles/lxd
+snapd_state: present
+lxd_state: present

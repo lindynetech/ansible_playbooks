@@ -13,5 +13,15 @@ Vagrant.configure("2") do |config|
       l.cpus = 1
     end
   end
+  # U2004
+  config.vm.define "ubuntu2004" do |conf|
+    conf.vm.box = "generic/ubuntu2004"
+    conf.vm.hostname = 'ubuntu2004.example.com'
+    conf.vm.network "private_network", ip: "192.168.4.201"
+    conf.vm.provider "libvirt" do |l|
+      l.memory = 2024
+      l.cpus = 1
+    end
+  end
 
 end

@@ -1,0 +1,34 @@
+---
+- name: Upate apt cache
+  apt: update_cache=yes cache_valid_time=3600
+
+- name: Install snapd
+  apt:
+    name: snapd
+    state: "{{ snapd_state }}"
+
+- name: Enable and start snapd service
+  service:
+    name: snapd
+    state: started
+    enabled: true
+  when: snapd_state == 'present'
+
+- name: Install LXD
+  snap:
+    name: lxd
+    state: "{{ lxd_state }}"
+    classic: true
+  register: result
+
+# - debug:
+#     msg: "{{ result }}"
+#       # Snaps installed {{ result.snaps_installed }}
+#       # Snaps removed {{ result.snaps_removed}}
+#   when: result.changed
+
+- name: Initialize default LXD profile
+  command: lxd init --auto
+  when: result.changed
+
+
