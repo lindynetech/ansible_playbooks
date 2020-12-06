@@ -11,6 +11,10 @@ x201 ansible_connection=local
 c8-1.test
 u2004-1.test
 
+[nagios_server]
+c8-1.test
+
+
 [vagrant]
 ubuntu2004.example.com
 

@@ -1,0 +1,46 @@
+---
+- name: Configure nagios master server
+  hosts: localhost
+  connection: local
+
+  vars_files:
+    - vars/main.yml
+
+  tasks:
+    - name: Start Nagios Server
+      docker_container:
+        name: "{{ nagios_master_name }}"
+        image: reg.hl.io/nagios-4.4.5:local
+        state: started
+        ports:
+          - "8080:80"
+        volumes:
+          - /tmp/nagios/etc:/opt/nagios/etc
+        restart: false
+
+  handlers:
+    - name: restart_nagios
+      command: docker restart "{{ nagios_master_name }}"
+      ignore_errors: true
+
+- name: Setup nagious clients
+  hosts: localhost
+  connection: local
+
+  tasks:
+    - name: Start Ubuntu 2004 client
+      lxd_container:
+        name: u2004-1
+        state: started
+        wait_for_ipv4_addresses: true
+        source:
+          type: image
+          mode: pull
+          server: "local:"
+          alias: u2004-ansible-agent
+      register: u2004
+
+    - debug:
+        var: u2004
+
+
