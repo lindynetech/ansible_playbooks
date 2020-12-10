@@ -1,0 +1,63 @@
+---
+# TODO:
+# Add tags
+
+- name: Deploy WP on ECS-optimized EC2 instance
+  hosts: wp
+  gather_facts: false
+
+  vars_files:
+    vars/main.yml
+
+  tasks:
+    - name: Ensure dependencies are installed
+      yum:
+        name:
+          - python3
+          - python3-pip
+          - git
+        state: present
+      become: true
+    
+    - name: Update pip
+      command: python3 -m pip install --upgrade pip
+      register: pip_status
+      become: true
+    
+    - name: Install docker-compose
+      pip:
+        executable: pip3
+        name: 
+          - docker-compose
+          - docker
+        extra_args: --user
+        state: latest
+
+    # Private git repo
+    # echo ssh_args = -o ForwardAgent=yes >> ansible.cfg  # under [ssh_connection]
+    # ssh-agent bash; ssh-add ~/.ssh/github; ssh-add -l
+    # $ vim ~/.ssh/config
+    # Host 184.73.75.94
+    #   Hostname 184.73.75.94
+    #   ForwardAgent yes    
+
+    - name: Clone git repo
+      git:
+        repo:  "{{ repo_url }}"
+        dest: /home/{{ ansible_user }}/{{ project_dir }}
+        accept_hostkey: true
+
+    - name: docker-compose down
+      docker_compose:
+        project_src: /home/{{ ansible_user }}/{{ project_dir }}
+        state: absent
+        remove_orphans: true      
+      vars:
+        ansible_python_interpreter: /usr/bin/python3
+
+    - name: docker-compose up
+      docker_compose:
+        project_src: /home/{{ ansible_user }}/{{ project_dir }}
+        state: present
+      vars:
+        ansible_python_interpreter: /usr/bin/python3

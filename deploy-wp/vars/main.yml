@@ -1,0 +1,27 @@
+---
+# Deployment
+repo_url: git@github.com:lindynetech/oncosemus.git
+project_dir: oncosemus_ans
+
+# Provisioning
+profile: default
+ec2_info:      
+  ecs:
+    owners: 591542846629
+    instance_type: t2.micro
+    architecture: "x86_64"              
+    filter: 'amzn2-ami-ecs-hvm-2.0.????????-x86_64-ebs'
+    username: ec2-user
+  keypair: sysops-key
+  region: us-east-1
+  security_group: WebTierSG
+  instance_name: wordpress-docker
+use_rds: true
+rds_instance_identifier: wp-db
+
+
+instance_role_name: EC2_RDS_Role
+ec2_sg_name: WebWPSG
+rds_sg_name: RDSWPSG
+rds_master_username: admin
+rds_master_password: password
