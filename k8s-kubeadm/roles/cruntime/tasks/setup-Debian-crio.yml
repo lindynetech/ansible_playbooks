@@ -1,0 +1,67 @@
+---
+- name: Update apt cache
+  apt: update_cache=yes cache_valid_time=3600
+
+- name: Ensure dependencies are installed.
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - gnupg2
+      - curl
+    state: present
+
+- name: Add libcontainer apt key
+  apt_key:
+    url: "{{ crio_apt_gpg_libcontainers_key }}"
+    state: present
+  register: add_repository_key
+  ignore_errors: true
+
+- name: Add libcontainer apt key (alternative for older systems)
+  shell: >
+    curl -sSL {{ crio_apt_gpg_libcontainers_key }} | sudo apt-key add -
+  args:
+    warn: false
+  when: add_repository_key is failed
+
+- name: Add libcontainer repository
+  apt_repository:
+    repo: "{{ crio_apt_libcontainers_repo }}"
+    state: present
+    update_cache: true
+
+- name: Add crio apt key
+  apt_key:
+    url: "{{ crio_apt_gpg_key }}"
+    state: present
+  register: add_repository_key_crio
+  ignore_errors: true
+
+- name: Add crio apt key (alternative for older systems)
+  shell: >
+    curl -sSL {{ crio_apt_gpg_key }} | sudo apt-key add -
+  args:
+    warn: false
+  when: add_repository_key_crio is failed
+
+- name: Add crio repository
+  apt_repository:
+    repo: "{{ crio_apt_repo }}"
+    state: present
+    update_cache: true
+
+- name: Install crio
+  apt:
+    name:
+      - cri-o
+      - cri-o-runc
+    state: present
+
+- name: systemctl start crio
+  systemd:
+    name: crio
+    state: started
+    enabled: yes
+    daemon_reload: yes
+

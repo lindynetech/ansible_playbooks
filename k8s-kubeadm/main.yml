@@ -1,0 +1,84 @@
+---
+- name: Install kubeadm
+  hosts: u2004hv
+  become: true
+  gather_facts: true
+
+  pre_tasks:
+    - name: Update apt cache
+      apt: update_cache=yes cache_valid_time=3600
+      when: ansible_os_family == 'Debian'
+  
+  roles:
+    - role: cruntime
+      vars: 
+        container_runtime: crio
+    - role: kubeadm 
+
+- name: Setup control-node
+  hosts: controlnode
+  gather_facts: true
+
+  tasks:
+    - name: kubeadm init
+      command: kubeadm init ----apiserver-advertise-address {{ apiserver-advertise-address }} --pod-network-cidr {{ pod-network-cidr}}
+      become: true
+      register: output
+
+    - name: Catch output for join command
+      copy:
+        content: "{{ output }}"
+        dest: /home/{{ ansible_user}}/join.txt
+
+    - name: Create .kube dir
+      file:
+        path: /home/{{ ansible_user}}/.kube
+        state: directory
+    
+    - name: Copy kube config
+      copy:
+        remote_src: /etc/kubernetes/admin.conf
+        dest: /home/{{ ansible_user}}/.kube/config
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+
+    - name: Setup Calico network
+      block:
+        - name: Copy calico config 
+          uri_get:
+            src: https://docs.projectcalico.org/manifests/custom-resources.yaml
+            dest: /home/{{ ansible_user}}/calico.yml
+
+        - name: Set custom network CIDR
+          lineinfile:
+            path: /home/{{ ansible_user}}/calico.yml
+            regexp: 'cidr: 192.168.0.0/16'
+            line: "cidr: {{ pod-network-cidr }}"
+        
+        - name: Setup pod network
+          command: | 
+            kubectl create -f https://docs.projectcalico.org/manifests/tigera-operator.yaml
+            kubectl create -f /home/{{ ansible_user}}/calico.yml
+      when: pod_network_provider == 'calico'
+    
+    - name: Setup Weave network
+      shell: kubectl apply -n kube-system -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"           
+      when: pod_network_provider == 'weave'
+
+    - name: Wait 1 min for network to setup
+      pause:
+        minutes: 1
+
+    - name: Remove taint from control node
+      command: >
+        kubectl taint nodes --all node-role.kubernetes.io/master- &&
+        kubectl get nodes -o wide
+
+
+
+
+
+
+
+
+   

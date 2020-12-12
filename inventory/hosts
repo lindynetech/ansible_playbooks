@@ -1,19 +1,19 @@
 [homelab]
 fcos1 ansible_ssh_private_key_file=~/.ssh/fcos_id_rsa
 
-[devopsserver]
+[aws]
+52.90.224.90 ansible_ssh_private_key_file=~/.ssh/sysops-key ansible_user=ubuntu
+
+[u2004hv]
+192.168.81.102
+
+[spin7server]
 spin7
 
-[lxdservers]
+[x201server]
 x201 ansible_connection=local
 
 [lxdcontainers]
-c8-1.test
-u2004-1.test
-
-[nagios_server]
-c8-1.test
-
 
 [vagrant]
 ubuntu2004.example.com

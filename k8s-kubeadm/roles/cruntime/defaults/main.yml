@@ -1,0 +1,38 @@
+---
+# defaults file for roles/cruntime
+container_runtime: docker # crio, containerd
+
+# Edition can be one of: 'ce' (Community Edition) or 'ee' (Enterprise Edition).
+docker_edition: 'ce'
+docker_package: "docker-{{ docker_edition }}"
+docker_package_state: present
+
+# Used only for Debian/Ubuntu. Switch 'stable' to 'edge' if needed.
+docker_apt_release_channel: stable
+docker_apt_arch: amd64
+docker_apt_repository: "deb [arch={{ docker_apt_arch }}] https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} {{ docker_apt_release_channel }}"
+docker_apt_ignore_key_error: true
+docker_apt_gpg_key: https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg
+
+# Used only for RedHat/CentOS/Fedora.
+docker_yum_repo_url: https://download.docker.com/linux/{{ (ansible_distribution == "Fedora") | ternary("fedora","centos") }}/docker-{{ docker_edition }}.repo
+docker_yum_repo_enable_edge: '0'
+docker_yum_repo_enable_test: '0'
+docker_yum_gpg_key: https://download.docker.com/linux/centos/gpg
+
+# A list of users who will be added to the docker group.
+docker_users: []
+
+# Cri-o
+crio_k8s_version: "1.19"
+crio_os_centos: "{{ ansible_distribution }}_{{ ansible_distribution_major_version }}"
+
+crio_yum_libcontainers_repo: https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/{{ crio_os_centos }}/devel:kubic:libcontainers:stable.repo
+crio_yum_repo: https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:{{ crio_k8s_version }}/{{ crio_os_centos }}/devel:kubic:libcontainers:stable:cri-o:{{ crio_k8s_version }}.repo
+
+crio_os_debian: x{{ ansible_distribution }}_{{ ansible_distribution_version }}
+
+crio_apt_gpg_libcontainers_key: https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/{{ crio_os_debian }}/Release.key
+crio_apt_gpg_key: https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:{{ crio_k8s_version }}/{{ crio_os_debian }}/Release.key
+crio_apt_libcontainers_repo: "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/{{ crio_os_debian }}/ /"
+crio_apt_repo: "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/{{ crio_k8s_version }}/{{ crio_os_debian }}/ /"

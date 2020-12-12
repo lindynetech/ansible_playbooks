@@ -1,0 +1,23 @@
+---
+- include_tasks: setup-RedHat.yml
+  when: ansible_os_family == 'RedHat'
+
+- include_tasks: setup-Debian.yml
+  when: ansible_os_family == 'Debian'
+
+- name: Ensure containerd.io is installed.
+  package:
+    name: containerd.io
+    state: present
+
+- name: Configure containerd
+  file:
+    path: /etc/containerd
+    state: directory
+
+- shell: containerd config default > /etc/containerd/config.toml
+  notify:
+    - restart_containerd  
+
+- include_tasks: docker-users.yml
+  when: docker_users | length > 0

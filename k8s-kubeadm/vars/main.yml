@@ -1,0 +1,16 @@
+---
+apiserver-advertise-address: 192.168.80.100
+pod-network-cidr: 172.80.0.0/16
+pod_network_provider: calico  # weave, flannel
+
+control_plane_tcp_ports:
+  - 6443
+  - 2379
+  - 2380
+  - 10250
+  - 10251
+  - 10252
+
+worker_node_tcp_ports:
+  - 10250
+  #- 30000-32767

@@ -1,0 +1,51 @@
+---
+# tasks file for roles/cruntime
+
+- name: Configure kernel modules
+  copy:
+    content: |
+      overlay
+      br_netfilter
+    dest: /etc/modules-load.d/containerd.conf
+
+- name: Load kernel modules
+  modprobe:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - overlay
+    - br_netfilter
+
+- name: Add net.bridge.bridge-nf-call-ip6tables to sysctl.conf
+  sysctl:
+    name: net.bridge.bridge-nf-call-ip6tables
+    value: '1'
+    reload: yes
+    state: present
+
+- name: Add net.bridge.bridge-nf-call-iptables to sysctl.conf
+  sysctl:
+    name: net.bridge.bridge-nf-call-iptables
+    value: '1'
+    reload: yes
+    state: present
+
+- name: Add net.ipv4.ip_forward to sysctl.conf
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    reload: yes
+    state: present
+
+- name: Include Docker Role
+  include_role:
+    name: "geerlingguy.docker"
+  when: container_runtime == 'docker'
+
+- name: Include crio tasks
+  include_tasks: setup-crio.yml
+  when:  container_runtime == 'crio'
+
+- name: Include containerd tasks
+  include_tasks: setup-containerd.yml
+  when:  container_runtime == 'containerd'
