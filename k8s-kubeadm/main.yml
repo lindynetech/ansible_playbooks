@@ -1,8 +1,10 @@
 ---
 - name: Install kubeadm
-  hosts: u2004hv
+  hosts: ubuntu2004.example.com
   become: true
   gather_facts: true
+  tags:
+    - kubeadm
 
   pre_tasks:
     - name: Update apt cache
@@ -16,12 +18,17 @@
     - role: kubeadm 
 
 - name: Setup control-node
-  hosts: controlnode
+  hosts: ubuntu2004.example.com
   gather_facts: true
+  tags:
+    - controlplane
+
+  vars_files:
+    vars/main.yml
 
   tasks:
     - name: kubeadm init
-      command: kubeadm init ----apiserver-advertise-address {{ apiserver-advertise-address }} --pod-network-cidr {{ pod-network-cidr}}
+      command: kubeadm init --apiserver-advertise-address {{ apiserver_advertise_address }} --pod-network-cidr {{ pod_network_cidr}}
       become: true
       register: output
 
@@ -37,15 +44,16 @@
     
     - name: Copy kube config
       copy:
-        remote_src: /etc/kubernetes/admin.conf
+        src: /etc/kubernetes/admin.conf
         dest: /home/{{ ansible_user}}/.kube/config
+        remote_src: true
         owner: "{{ ansible_user }}"
         group: "{{ ansible_user }}"
 
     - name: Setup Calico network
       block:
         - name: Copy calico config 
-          uri_get:
+          get_url:
             src: https://docs.projectcalico.org/manifests/custom-resources.yaml
             dest: /home/{{ ansible_user}}/calico.yml
 
@@ -53,7 +61,7 @@
           lineinfile:
             path: /home/{{ ansible_user}}/calico.yml
             regexp: 'cidr: 192.168.0.0/16'
-            line: "cidr: {{ pod-network-cidr }}"
+            line: "cidr: {{ pod_network_cidr }}"
         
         - name: Setup pod network
           command: | 

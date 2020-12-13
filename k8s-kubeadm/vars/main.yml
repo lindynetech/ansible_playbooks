@@ -1,6 +1,6 @@
 ---
-apiserver-advertise-address: 192.168.80.100
-pod-network-cidr: 172.80.0.0/16
+apiserver_advertise_address: 192.168.4.201
+pod_network_cidr: 172.81.0.0/16
 pod_network_provider: calico  # weave, flannel
 
 control_plane_tcp_ports:
